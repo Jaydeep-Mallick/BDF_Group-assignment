@@ -1,0 +1,26 @@
+{
+  "name": "roboroom-club",
+  "version": "1.0.0",
+  "description": "RoboRoom Club – Robot Loan Management System (Backend Development Fundamentals)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test tests/api.test.js tests/twist.test.js"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "sqlite",
+    "roboroom",
+    "robot-loan-management",
+    "bdf-assignment"
+  ],
+  "author": "Jaydeep Mallick, C. Jaswanth Kumar, Rithwik Reddy, G. Sudeshna, Bhargava Sai",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "express": "^4.21.2"
+  }
+}
+

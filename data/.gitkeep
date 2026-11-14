@@ -1,0 +1,2 @@
+# Keep data directory in version control while ignoring sqlite .db files
+

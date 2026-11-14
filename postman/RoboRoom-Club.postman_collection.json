@@ -1,0 +1,925 @@
+{
+  "info": {
+    "_postman_id": "a90b4d1c-8e33-4f01-9876-c5678abcdef0",
+    "name": "RoboRoom Club - Robot Loan Management System",
+    "description": "Comprehensive Postman test suite for RoboRoom Club Robot Loan Management System.\nCovers Robot CRUD, Builder endpoints, Loan operations, relational JOIN queries, validation, query search, and the Automatic Robot Codes Special Twist (ROB-0001, ROB-0002, code immutability).\nPrepared by Bhargava Sai (Roll No: 252U1R9055).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "testRobotId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "testBuilderId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "testLoanId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "twistRobot1Id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "twistRobot2Id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Server Health",
+      "item": [
+        {
+          "name": "Server Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Returns online status and project name', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql('online');",
+                  "    pm.expect(json.project).to.eql('RoboRoom Club');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Robot Operations",
+      "item": [
+        {
+          "name": "Add Robot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test('Robot created with auto-generated code', function () {",
+                  "    pm.expect(json).to.have.property('id');",
+                  "    pm.expect(json).to.have.property('code');",
+                  "    pm.expect(json.code).to.match(/^ROB-\\d{4}$/);",
+                  "    pm.expect(json.name).to.eql('Aegis Sentinel');",
+                  "    pm.expect(json.kind).to.eql('Combat');",
+                  "    pm.collectionVariables.set('testRobotId', json.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Aegis Sentinel\",\n  \"kind\": \"Combat\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/robots",
+              "host": ["{{baseUrl}}"],
+              "path": ["robots"]
+            }
+          }
+        },
+        {
+          "name": "Get All Robots",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Returns array of robots', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(Array.isArray(json)).to.be.true;",
+                  "    pm.expect(json.length).to.be.at.least(1);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/robots",
+              "host": ["{{baseUrl}}"],
+              "path": ["robots"]
+            }
+          }
+        },
+        {
+          "name": "Get Robot By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test('Robot ID matches requested ID', function () {",
+                  "    pm.expect(String(json.id)).to.eql(String(pm.collectionVariables.get('testRobotId')));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/robots/{{testRobotId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["robots", "{{testRobotId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Robot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test('Robot updated successfully with code intact', function () {",
+                  "    pm.expect(json.name).to.eql('Aegis Sentinel Mark II');",
+                  "    pm.expect(json.kind).to.eql('Heavy Combat');",
+                  "    pm.expect(json).to.have.property('code');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Aegis Sentinel Mark II\",\n  \"kind\": \"Heavy Combat\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/robots/{{testRobotId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["robots", "{{testRobotId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Disposable Robot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 204 No Content', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/robots/{{disposableRobotId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["robots", "{{disposableRobotId}}"]
+            }
+          }
+        },
+        {
+          "name": "Search by Kind",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test('All robots match kind filter', function () {",
+                  "    pm.expect(Array.isArray(json)).to.be.true;",
+                  "    json.forEach(r => {",
+                  "        pm.expect(r.kind.toLowerCase()).to.include('combat');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/robots?kind=combat",
+              "host": ["{{baseUrl}}"],
+              "path": ["robots"],
+              "query": [
+                {
+                  "key": "kind",
+                  "value": "combat"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search by Name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test('All robots match name query', function () {",
+                  "    pm.expect(Array.isArray(json)).to.be.true;",
+                  "    json.forEach(r => {",
+                  "        pm.expect(r.name.toLowerCase()).to.include('aegis');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/robots?name=aegis",
+              "host": ["{{baseUrl}}"],
+              "path": ["robots"],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "aegis"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Builder Operations",
+      "item": [
+        {
+          "name": "Add Builder",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test('Builder created with valid ID', function () {",
+                  "    pm.expect(json).to.have.property('id');",
+                  "    pm.expect(json.name).to.eql('Jaydeep Mallick');",
+                  "    pm.collectionVariables.set('testBuilderId', json.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jaydeep Mallick\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/builders",
+              "host": ["{{baseUrl}}"],
+              "path": ["builders"]
+            }
+          }
+        },
+        {
+          "name": "Get All Builders",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Returns array of builders', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(Array.isArray(json)).to.be.true;",
+                  "    pm.expect(json.length).to.be.at.least(1);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/builders",
+              "host": ["{{baseUrl}}"],
+              "path": ["builders"]
+            }
+          }
+        },
+        {
+          "name": "Get Builder By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test('Builder ID matches', function () {",
+                  "    pm.expect(String(json.id)).to.eql(String(pm.collectionVariables.get('testBuilderId')));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/builders/{{testBuilderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["builders", "{{testBuilderId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Loan Operations & JOIN Details",
+      "item": [
+        {
+          "name": "Create Loan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test('Loan created with null return_date', function () {",
+                  "    pm.expect(json).to.have.property('id');",
+                  "    pm.expect(json.return_date).to.be.null;",
+                  "    pm.collectionVariables.set('testLoanId', json.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"builder_id\": {{testBuilderId}},\n  \"robot_id\": {{testRobotId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/loans",
+              "host": ["{{baseUrl}}"],
+              "path": ["loans"]
+            }
+          }
+        },
+        {
+          "name": "Get All Loans",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Returns array of loans', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(Array.isArray(json)).to.be.true;",
+                  "    pm.expect(json.length).to.be.at.least(1);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/loans",
+              "host": ["{{baseUrl}}"],
+              "path": ["loans"]
+            }
+          }
+        },
+        {
+          "name": "Get Loan By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test('Loan ID matches', function () {",
+                  "    pm.expect(String(json.id)).to.eql(String(pm.collectionVariables.get('testLoanId')));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/loans/{{testLoanId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["loans", "{{testLoanId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Loan Details (MANDATORY JOIN)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test('Returns joined builder and robot details', function () {",
+                  "    pm.expect(Array.isArray(json)).to.be.true;",
+                  "    var target = json.find(l => String(l.id) === String(pm.collectionVariables.get('testLoanId')));",
+                  "    pm.expect(target).to.not.be.undefined;",
+                  "    pm.expect(target).to.have.property('builder_name');",
+                  "    pm.expect(target).to.have.property('robot_name');",
+                  "    pm.expect(target).to.have.property('robot_code');",
+                  "    pm.expect(target.builder_name).to.eql('Jaydeep Mallick');",
+                  "    pm.expect(target.robot_name).to.eql('Aegis Sentinel Mark II');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/loans/details",
+              "host": ["{{baseUrl}}"],
+              "path": ["loans", "details"]
+            }
+          }
+        },
+        {
+          "name": "Return Loan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test('Return date updated with timestamp', function () {",
+                  "    pm.expect(json.return_date).to.not.be.null;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/loans/{{testLoanId}}/return",
+              "host": ["{{baseUrl}}"],
+              "path": ["loans", "{{testLoanId}}", "return"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Validation & Error Handling",
+      "item": [
+        {
+          "name": "Missing Robot Name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Error indicates robot name is required', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"Humanoid\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/robots",
+              "host": ["{{baseUrl}}"],
+              "path": ["robots"]
+            }
+          }
+        },
+        {
+          "name": "Missing Robot Kind",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Error indicates robot kind is required', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Incomplete Bot\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/robots",
+              "host": ["{{baseUrl}}"],
+              "path": ["robots"]
+            }
+          }
+        },
+        {
+          "name": "Invalid Robot ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Reports invalid ID format', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/robots/invalid_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["robots", "invalid_id"]
+            }
+          }
+        },
+        {
+          "name": "Invalid Builder ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/builders/-10",
+              "host": ["{{baseUrl}}"],
+              "path": ["builders", "-10"]
+            }
+          }
+        },
+        {
+          "name": "Invalid Robot Reference",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404 Not Found', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "pm.test('Error message is Robot not found', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.error).to.eql('Robot not found');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"builder_id\": 1,\n  \"robot_id\": 999999\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/loans",
+              "host": ["{{baseUrl}}"],
+              "path": ["loans"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Special Twist – Automatic Robot Codes",
+      "item": [
+        {
+          "name": "Add First Robot (MANDATORY TEST 1)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('MANDATORY TEST 1: Status code is 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test('MANDATORY TEST 1: First robot receives ROB-0001', function () {",
+                  "    pm.expect(json).to.have.property('code');",
+                  "    pm.expect(json.code).to.eql('ROB-0001');",
+                  "    pm.collectionVariables.set('twistRobot1Id', json.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Twist Bot Alpha\",\n  \"kind\": \"Humanoid\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/robots",
+              "host": ["{{baseUrl}}"],
+              "path": ["robots"]
+            }
+          }
+        },
+        {
+          "name": "Add Second Robot (MANDATORY TEST 2)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('MANDATORY TEST 2: Status code is 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test('MANDATORY TEST 2: Second robot receives ROB-0002', function () {",
+                  "    pm.expect(json).to.have.property('code');",
+                  "    pm.expect(json.code).to.eql('ROB-0002');",
+                  "    pm.collectionVariables.set('twistRobot2Id', json.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Twist Bot Beta\",\n  \"kind\": \"Wheeled\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/robots",
+              "host": ["{{baseUrl}}"],
+              "path": ["robots"]
+            }
+          }
+        },
+        {
+          "name": "Update First Robot With Different Code (MANDATORY TEST 3)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('MANDATORY TEST 3: Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test('MANDATORY TEST 3: Original code remains ROB-0001 unchanged', function () {",
+                  "    pm.expect(json.name).to.eql('Updated Twist Bot Alpha');",
+                  "    pm.expect(json.code).to.eql('ROB-0001');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Twist Bot Alpha\",\n  \"kind\": \"Humanoid\",\n  \"code\": \"ROB-9999\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/robots/{{twistRobot1Id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["robots", "{{twistRobot1Id}}"]
+            }
+          }
+        },
+        {
+          "name": "Verify Original Code Remains Unchanged",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test('Database record confirms code is still ROB-0001', function () {",
+                  "    pm.expect(json.code).to.eql('ROB-0001');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/robots/{{twistRobot1Id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["robots", "{{twistRobot1Id}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+
