@@ -73,7 +73,31 @@ function initDb(customPath) {
   const schemaSql = fs.readFileSync(schemaPath, 'utf8');
   dbInstance.exec(schemaSql);
 
+  // Synchronize SQLite AUTOINCREMENT sequence with current max IDs
+  syncSequences(dbInstance);
+
   return dbInstance;
+}
+
+/**
+ * Synchronizes SQLite AUTOINCREMENT sequence counters with current maximum IDs.
+ * Prevents gap inflation if records with higher IDs were deleted.
+ * @param {Database.Database} db
+ */
+function syncSequences(db) {
+  try {
+    const tables = ['robots', 'builders', 'loans'];
+    for (const table of tables) {
+      const maxRow = db.prepare(`SELECT COALESCE(MAX(id), 0) AS max_id FROM ${table}`).get();
+      const maxId = maxRow ? maxRow.max_id : 0;
+      const seqRow = db.prepare('SELECT seq FROM sqlite_sequence WHERE name = ?').get(table);
+      if (seqRow && seqRow.seq > maxId) {
+        db.prepare('UPDATE sqlite_sequence SET seq = ? WHERE name = ?').run(maxId, table);
+      }
+    }
+  } catch (_) {
+    // sqlite_sequence may not exist yet on fresh empty databases
+  }
 }
 
 /**
