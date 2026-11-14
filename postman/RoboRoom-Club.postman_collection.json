@@ -129,10 +129,10 @@
                   "pm.test('Status code is 200 OK', function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
-                  "pm.test('Returns array of at least 4 robots', function () {",
+                  "pm.test('Returns array of robots', function () {",
                   "    var json = pm.response.json();",
                   "    pm.expect(Array.isArray(json)).to.be.true;",
-                  "    pm.expect(json.length).to.be.at.least(4);",
+                  "    pm.expect(json.length).to.be.at.least(1);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -771,84 +771,20 @@
       "name": "6. Special Twist – Automatic Robot Codes",
       "item": [
         {
-          "name": "Verify Default Robot 1 (ROB-0001)",
+          "name": "Add First Robot (MANDATORY TEST 1)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code is 200 OK', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "var json = pm.response.json();",
-                  "pm.test('Default robot with ROB-0001 exists', function () {",
-                  "    var robot = json.find(r => r.code === 'ROB-0001');",
-                  "    pm.expect(robot).to.not.be.undefined;",
-                  "    pm.expect(robot.code).to.eql('ROB-0001');",
-                  "    pm.expect(robot.name).to.include('Robo Alpha');",
-                  "    pm.collectionVariables.set('twistRobot1Id', robot.id);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/robots",
-              "host": ["{{baseUrl}}"],
-              "path": ["robots"]
-            }
-          }
-        },
-        {
-          "name": "Verify Default Robot 2 (ROB-0002)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200 OK', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "var json = pm.response.json();",
-                  "pm.test('Default robot with ROB-0002 exists', function () {",
-                  "    var robot = json.find(r => r.code === 'ROB-0002');",
-                  "    pm.expect(robot).to.not.be.undefined;",
-                  "    pm.expect(robot.code).to.eql('ROB-0002');",
-                  "    pm.collectionVariables.set('twistRobot2Id', robot.id);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/robots",
-              "host": ["{{baseUrl}}"],
-              "path": ["robots"]
-            }
-          }
-        },
-        {
-          "name": "Add New Robot (Sequential Code Generation)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 201 Created', function () {",
+                  "pm.test('MANDATORY TEST 1: Status code is 201 Created', function () {",
                   "    pm.response.to.have.status(201);",
                   "});",
                   "var json = pm.response.json();",
-                  "pm.test('New robot receives automatic sequential code', function () {",
+                  "pm.test('MANDATORY TEST 1: First robot receives ROB-0001', function () {",
                   "    pm.expect(json).to.have.property('code');",
-                  "    pm.expect(json.code).to.match(/^ROB-\\d{4}$/);",
+                  "    pm.expect(json.code).to.eql('ROB-0001');",
+                  "    pm.collectionVariables.set('twistRobot1Id', json.id);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -865,7 +801,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Twist Bot Epsilon\",\n  \"kind\": \"Combat\"\n}"
+              "raw": "{\n  \"name\": \"Twist Bot Alpha\",\n  \"kind\": \"Humanoid\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/robots",
@@ -875,17 +811,57 @@
           }
         },
         {
-          "name": "Update First Robot With Different Code (Code Immutability)",
+          "name": "Add Second Robot (MANDATORY TEST 2)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code is 200 OK', function () {",
+                  "pm.test('MANDATORY TEST 2: Status code is 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var json = pm.response.json();",
+                  "pm.test('MANDATORY TEST 2: Second robot receives ROB-0002', function () {",
+                  "    pm.expect(json).to.have.property('code');",
+                  "    pm.expect(json.code).to.eql('ROB-0002');",
+                  "    pm.collectionVariables.set('twistRobot2Id', json.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Twist Bot Beta\",\n  \"kind\": \"Wheeled\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/robots",
+              "host": ["{{baseUrl}}"],
+              "path": ["robots"]
+            }
+          }
+        },
+        {
+          "name": "Update First Robot With Different Code (MANDATORY TEST 3)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('MANDATORY TEST 3: Status code is 200 OK', function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
                   "var json = pm.response.json();",
-                  "pm.test('Original code remains ROB-0001 unchanged', function () {",
+                  "pm.test('MANDATORY TEST 3: Original code remains ROB-0001 unchanged', function () {",
                   "    pm.expect(json.name).to.eql('Updated Twist Bot Alpha');",
                   "    pm.expect(json.code).to.eql('ROB-0001');",
                   "});"
