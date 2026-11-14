@@ -33,6 +33,10 @@ RoboRoom Club is a specialized, production-ready Robot Loan Management System bu
 - [Automated Testing Suite](#automated-testing-suite)
 - [Installation and How to Run](#installation-and-how-to-run)
 - [Screenshot Folder Descriptions](#screenshot-folder-descriptions)
+- [Jaydeep Mallick – Execution Screenshots & Verification](#jaydeep-mallick--execution-screenshots--verification)
+  - [1. Robot CRUD Endpoints](#1-robot-crud-endpoints)
+  - [2. Builder CRUD Endpoints](#2-builder-crud-endpoints)
+  - [3. Loan Operations, Mandatory SQL JOIN & Integrity Protection](#3-loan-operations-mandatory-sql-join--integrity-protection)
 - [GitHub Collaboration & Branching Instructions](#github-collaboration--branching-instructions)
 
 ---
@@ -569,11 +573,289 @@ Server runs on:
 
 Each team member has an individual screenshot folder containing a dedicated checklist and recommended filenames:
 
-1. **Jaydeep Mallick:** [`Jaydeep_screenshot/`](./Jaydeep_screenshot/README.md) – REST endpoints for robots, builders, loans, and the SQL JOIN endpoint (`01_Get_All_Robots.png` through `11_Loan_Details_JOIN.png`).
+1. **Jaydeep Mallick:** [`Jaydeep_screenshot/`](./Jaydeep_screenshot/README.md) – REST endpoints for robots, builders, loans, return lifecycle, and the SQL JOIN endpoint (17 verified Postman execution screenshots from `01_GET_All_Robots.png` to `17_DELETE_Builder_Conflict_Integrity.png`).
 2. **C. Jaswanth Kumar:** [`Jaswanth_screenshot/`](./Jaswanth_screenshot/README.md) – Express server startup, route configurations, and database table schemas (`01_Express_Server_Running.png` through `06_Loans_Table.png`).
 3. **Rithwik Reddy:** [`Rithwik_screenshot/`](./Rithwik_screenshot/README.md) – Input validation error messages, ID format rejection, and query parameter search (`01_Missing_Robot_Name.png` through `06_Validation_Error_Messages.png`).
 4. **G. Sudeshna:** [`Sudeshna_screenshot/`](./Sudeshna_screenshot/README.md) – Twist rule verification: `ROB-0001`, `ROB-0002`, code immutability, and twist test results (`01_First_Robot_ROB0001.png` through `04_Twist_Test_Results.png`).
 5. **Bhargava Sai:** [`Bhargava_screenshot/`](./Bhargava_screenshot/README.md) – Postman collection overview, runner execution results, automated test reports, and README documentation (`01_Postman_Collection.png` through `06_README_API_Documentation.png`).
+
+---
+
+## Jaydeep Mallick – Execution Screenshots & Verification
+
+**Contribution:** REST Endpoints for Builders, Robots, Loans, and Mandatory SQL JOIN Endpoint  
+**Roll Number:** `252U1R9047`
+
+Below is the verified Postman execution gallery capturing all 17 REST API operations implemented by Jaydeep Mallick against the running server (`http://localhost:3000`) and SQLite database.
+
+| # | Filename | Method & Endpoint | HTTP Status | Action & Verification Matter |
+|---|:---|:---|:---:|:---|
+| 01 | `01_GET_All_Robots.png` | `GET /robots` | `200 OK` | Retrieves all registered competition robots (`Robo Alpha`, `Robo Beta`, `Robo Gamma`). |
+| 02 | `02_GET_Robot_By_ID.png` | `GET /robots/1` | `200 OK` | Retrieves single robot record by ID (`id: 1`, `code: ROB-0001`, `name: Robo Alpha`). |
+| 03 | `03_POST_Add_Robot.png` | `POST /robots` | `201 Created` | Creates a new robot (`Robo Delta`); automatically assigns next sequential code `ROB-0004` and `id: 4`. |
+| 04 | `04_PUT_Update_Robot.png` | `PUT /robots/4` | `200 OK` | Updates robot name to `Robo Delta Updated`; original code `ROB-0004` remains immutable. |
+| 05 | `05_DELETE_Robot.png` | `DELETE /robots/4` | `204 No Content` | Deletes an unloaned robot from database; returns empty body. |
+| 06 | `06_GET_All_Builders.png` | `GET /builders` | `200 OK` | Retrieves array of all registered builders (`Jaydeep`, `Jaswanth`). |
+| 07 | `07_GET_Builder_By_ID.png` | `GET /builders/1` | `200 OK` | Retrieves single builder by ID (`id: 1`, `name: Jaydeep`). |
+| 08 | `08_POST_Add_Builder.png` | `POST /builders` | `201 Created` | Creates a new builder record (`Demo Builder`, `id: 3`). |
+| 09 | `09_PUT_Update_Builder.png` | `PUT /builders/3` | `200 OK` | Updates builder name to `Demo Builder Updated` (`id: 3`). |
+| 10 | `10_DELETE_Builder.png` | `DELETE /builders/3` | `204 No Content` | Deletes builder with no loans; returns 204 No Content. |
+| 11 | `11_GET_All_Loans.png` | `GET /loans` | `200 OK` | Retrieves list of loans (`id: 1, builder_id: 1, robot_id: 1, return_date: null`). |
+| 12 | `12_POST_Create_Loan.png` | `POST /loans` | `201 Created` | Creates new active loan (`id: 2`) for builder Jaswanth borrowing Robo Beta. |
+| 13 | `13_GET_Loan_By_ID.png` | `GET /loans/2` | `200 OK` | Retrieves single loan record by ID (`id: 2`). |
+| 14 | `14_GET_Loans_Details_JOIN.png` | `GET /loans/details` | `200 OK` | **Mandatory SQL JOIN Endpoint:** Returns joined details with `builder_name`, `robot_name`, and `robot_code`. |
+| 15 | `15_POST_Return_Loan.png` | `POST /loans/1/return` | `200 OK` | Returns loan 1, setting `return_date` timestamp while preserving historical record. |
+| 16 | `16_POST_Reloan_After_Return.png` | `POST /loans` | `201 Created` | Demonstrates re-loaning: Robo Alpha is successfully loaned again (`loan id: 3`) after previous loan returned. |
+| 17 | `17_DELETE_Builder_Conflict_Integrity.png` | `DELETE /builders/1` | `409 Conflict` | Referential integrity enforcement: Rejects deletion of builder with active or past loans (`Cannot delete builder with active or past loans`). |
+
+---
+
+### 1. Robot CRUD Endpoints
+
+#### 01. GET All Robots (`GET /robots`)
+* **Endpoint:** `GET http://localhost:3000/robots`
+* **Status Code:** `200 OK`
+* **Description:** Retrieves all competition robots currently stored in SQLite database. Confirms presence of default initialized robots (`Robo Alpha`, `Robo Beta`, and `Robo Gamma`).
+* **Screenshot:**  
+  ![01 GET All Robots](./Jaydeep_screenshot/01_GET_All_Robots.png)
+
+#### 02. GET Robot by ID (`GET /robots/:id`)
+* **Endpoint:** `GET http://localhost:3000/robots/1`
+* **Status Code:** `200 OK`
+* **Description:** Fetches single robot record by primary key `id = 1`. Returns `code: "ROB-0001"`, `name: "Robo Alpha"`, and `kind: "Humanoid"`.
+* **Screenshot:**  
+  ![02 GET Robot By ID](./Jaydeep_screenshot/02_GET_Robot_By_ID.png)
+
+#### 03. POST Add Robot (`POST /robots`)
+* **Endpoint:** `POST http://localhost:3000/robots/`
+* **Status Code:** `201 Created`
+* **Request Body:**
+  ```json
+  {
+    "name": "Robo Delta",
+    "kind": "Educational"
+  }
+  ```
+* **Response Body:**
+  ```json
+  {
+    "id": 4,
+    "code": "ROB-0004",
+    "name": "Robo Delta",
+    "kind": "Educational"
+  }
+  ```
+* **Description:** Verifies automatic sequential robot code assignment (`ROB-0004`) and sequential primary key generation (`id: 4`).
+* **Screenshot:**  
+  ![03 POST Add Robot](./Jaydeep_screenshot/03_POST_Add_Robot.png)
+
+#### 04. PUT Update Robot (`PUT /robots/:id`)
+* **Endpoint:** `PUT http://localhost:3000/robots/4`
+* **Status Code:** `200 OK`
+* **Request Body:**
+  ```json
+  {
+    "name": "Robo Delta Updated",
+    "kind": "Educational"
+  }
+  ```
+* **Response Body:**
+  ```json
+  {
+    "id": 4,
+    "code": "ROB-0004",
+    "name": "Robo Delta Updated",
+    "kind": "Educational"
+  }
+  ```
+* **Description:** Successfully updates robot name while strictly enforcing code immutability (`ROB-0004` remains unchanged).
+* **Screenshot:**  
+  ![04 PUT Update Robot](./Jaydeep_screenshot/04_PUT_Update_Robot.png)
+
+#### 05. DELETE Robot (`DELETE /robots/:id`)
+* **Endpoint:** `DELETE http://localhost:3000/robots/4`
+* **Status Code:** `204 No Content`
+* **Description:** Removes unloaned robot (`id: 4`) from SQLite database. Confirms clean HTTP 204 No Content response with empty body.
+* **Screenshot:**  
+  ![05 DELETE Robot](./Jaydeep_screenshot/05_DELETE_Robot.png)
+
+---
+
+### 2. Builder CRUD Endpoints
+
+#### 06. GET All Builders (`GET /builders`)
+* **Endpoint:** `GET http://localhost:3000/builders`
+* **Status Code:** `200 OK`
+* **Description:** Fetches all registered builders. Displays array with Builder 1 (`Jaydeep`) and Builder 2 (`Jaswanth`).
+* **Screenshot:**  
+  ![06 GET All Builders](./Jaydeep_screenshot/06_GET_All_Builders.png)
+
+#### 07. GET Builder by ID (`GET /builders/:id`)
+* **Endpoint:** `GET http://localhost:3000/builders/1`
+* **Status Code:** `200 OK`
+* **Description:** Fetches single builder record by primary key `id = 1` returning `{"id": 1, "name": "Jaydeep"}`.
+* **Screenshot:**  
+  ![07 GET Builder By ID](./Jaydeep_screenshot/07_GET_Builder_By_ID.png)
+
+#### 08. POST Add Builder (`POST /builders`)
+* **Endpoint:** `POST http://localhost:3000/builders/`
+* **Status Code:** `201 Created`
+* **Request Body:**
+  ```json
+  {
+    "name": "Demo Builder"
+  }
+  ```
+* **Response Body:**
+  ```json
+  {
+    "id": 3,
+    "name": "Demo Builder"
+  }
+  ```
+* **Description:** Creates new builder record with sequential primary key `id: 3`.
+* **Screenshot:**  
+  ![08 POST Add Builder](./Jaydeep_screenshot/08_POST_Add_Builder.png)
+
+#### 09. PUT Update Builder (`PUT /builders/:id`)
+* **Endpoint:** `PUT http://localhost:3000/builders/3`
+* **Status Code:** `200 OK`
+* **Request Body:**
+  ```json
+  {
+    "name": "Demo Builder Updated"
+  }
+  ```
+* **Response Body:**
+  ```json
+  {
+    "id": 3,
+    "name": "Demo Builder Updated"
+  }
+  ```
+* **Description:** Updates builder name to `Demo Builder Updated`.
+* **Screenshot:**  
+  ![09 PUT Update Builder](./Jaydeep_screenshot/09_PUT_Update_Builder.png)
+
+#### 10. DELETE Builder (`DELETE /builders/:id`)
+* **Endpoint:** `DELETE http://localhost:3000/builders/3`
+* **Status Code:** `204 No Content`
+* **Description:** Deletes builder record with no active or historical loans (`id: 3`). Returns HTTP 204 No Content.
+* **Screenshot:**  
+  ![10 DELETE Builder](./Jaydeep_screenshot/10_DELETE_Builder.png)
+
+---
+
+### 3. Loan Operations, Mandatory SQL JOIN & Integrity Protection
+
+#### 11. GET All Loans (`GET /loans`)
+* **Endpoint:** `GET http://localhost:3000/loans`
+* **Status Code:** `200 OK`
+* **Description:** Retrieves all loan records. Displays initial active loan with `builder_id: 1` borrowing `robot_id: 1` (`return_date: null`).
+* **Screenshot:**  
+  ![11 GET All Loans](./Jaydeep_screenshot/11_GET_All_Loans.png)
+
+#### 12. POST Create Loan (`POST /loans`)
+* **Endpoint:** `POST http://localhost:3000/loans`
+* **Status Code:** `201 Created`
+* **Request Body:**
+  ```json
+  {
+    "builder_id": 2,
+    "robot_id": 2
+  }
+  ```
+* **Response Body:**
+  ```json
+  {
+    "id": 2,
+    "builder_id": 2,
+    "robot_id": 2,
+    "loan_date": "2026-11-14 14:20:39",
+    "return_date": null
+  }
+  ```
+* **Description:** Creates an active loan contract (`id: 2`) assigning available robot `Robo Beta` (`id: 2`) to builder `Jaswanth` (`id: 2`).
+* **Screenshot:**  
+  ![12 POST Create Loan](./Jaydeep_screenshot/12_POST_Create_Loan.png)
+
+#### 13. GET Loan by ID (`GET /loans/:id`)
+* **Endpoint:** `GET http://localhost:3000/loans/2`
+* **Status Code:** `200 OK`
+* **Description:** Fetches loan contract details by primary key `id = 2`.
+* **Screenshot:**  
+  ![13 GET Loan By ID](./Jaydeep_screenshot/13_GET_Loan_By_ID.png)
+
+#### 14. GET Loans Details – Mandatory SQL JOIN (`GET /loans/details`)
+* **Endpoint:** `GET http://localhost:3000/loans/details`
+* **Status Code:** `200 OK`
+* **SQL Query Implemented:**
+  ```sql
+  SELECT l.id, l.builder_id, b.name AS builder_name,
+         l.robot_id, r.name AS robot_name, r.code AS robot_code,
+         l.loan_date, l.return_date
+  FROM loans l
+  JOIN builders b ON l.builder_id = b.id
+  JOIN robots r ON l.robot_id = r.id
+  ORDER BY l.id ASC;
+  ```
+* **Description:** **Mandatory Assignment Requirement.** Performs relational SQL `JOIN` across `loans`, `builders`, and `robots` tables, returning full human-readable information (`builder_name`, `robot_name`, `robot_code`).
+* **Screenshot:**  
+  ![14 GET Loans Details JOIN](./Jaydeep_screenshot/14_GET_Loans_Details_JOIN.png)
+
+#### 15. POST Return Loan (`POST /loans/:id/return`)
+* **Endpoint:** `POST http://localhost:3000/loans/1/return`
+* **Status Code:** `200 OK`
+* **Response Body:**
+  ```json
+  {
+    "id": 1,
+    "builder_id": 1,
+    "robot_id": 1,
+    "loan_date": "2026-11-14 14:07:09",
+    "return_date": "2026-11-14 14:23:26"
+  }
+  ```
+* **Description:** Returns loaned robot `Robo Alpha` by stamping `return_date` with the current timestamp. Preserves loan history while making the robot eligible for new loans.
+* **Screenshot:**  
+  ![15 POST Return Loan](./Jaydeep_screenshot/15_POST_Return_Loan.png)
+
+#### 16. POST Re-loan Robot After Return (`POST /loans`)
+* **Endpoint:** `POST http://localhost:3000/loans`
+* **Status Code:** `201 Created`
+* **Request Body:**
+  ```json
+  {
+    "builder_id": 2,
+    "robot_id": 1
+  }
+  ```
+* **Response Body:**
+  ```json
+  {
+    "id": 3,
+    "builder_id": 2,
+    "robot_id": 1,
+    "loan_date": "2026-11-14 14:26:18",
+    "return_date": null
+  }
+  ```
+* **Description:** Verifies that returned robot `Robo Alpha` (`id: 1`) can immediately be re-loaned to a new builder (`Jaswanth`, `id: 2`), successfully generating Loan ID 3.
+* **Screenshot:**  
+  ![16 POST Reloan After Return](./Jaydeep_screenshot/16_POST_Reloan_After_Return.png)
+
+#### 17. DELETE Builder Referential Integrity Conflict (`DELETE /builders/:id`)
+* **Endpoint:** `DELETE http://localhost:3000/builders/1`
+* **Status Code:** `409 Conflict`
+* **Response Body:**
+  ```json
+  {
+    "error": "Cannot delete builder with active or past loans"
+  }
+  ```
+* **Description:** Enforces relational database integrity. Rejects deletion of builder `Jaydeep` (`id: 1`) who has historical loan records, protecting against orphaned foreign keys.
+* **Screenshot:**  
+  ![17 DELETE Builder Conflict Integrity](./Jaydeep_screenshot/17_DELETE_Builder_Conflict_Integrity.png)
 
 ---
 
