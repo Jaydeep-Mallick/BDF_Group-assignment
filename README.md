@@ -899,3 +899,48 @@ Below is the verified Postman execution gallery capturing all 17 REST API operat
    - Request review from a teammate.
    - Merge into `main` after checks pass.
 
+
+
+---
+
+## Bhargava Sai – Postman Testing, Automated Testing & Documentation
+
+**Contribution:** Postman collection, collection-runner checks, automated tests, and project documentation
+
+**Roll Number:** `252U1R9055`
+
+### Postman Collection
+
+The Postman workspace displays the RoboRoom Club collection and its grouped requests for server health, robot operations, builder operations, loan operations and JOIN details, validation and error handling, and the automatic robot-code special twist. The collection overview describes its test coverage and identifies Bhargava Sai as its preparer.
+
+![Postman collection overview](Bhargava_screenshot/01_Postman_Collection.png)
+
+### Collection Runner Setup
+
+The Runner is configured for a functional local run with one iteration. The screenshot shows 25 of 25 requests selected, with the Start run control ready.
+
+![Postman Collection Runner setup](Bhargava_screenshot/02_Postman_Collection_Runner.png)
+
+### Postman Run Results
+
+The displayed Postman Runner results show 39 tests passed, 0 failed, and 0 errors for one iteration. The visible request entries include checks for server status, robot creation and retrieval, robot updates, and search.
+
+![Postman test results](Bhargava_screenshot/03_Postman_Tests_Passed.png)
+
+### Automated Test Results
+
+The terminal output shows the project's `npm test` run, including the API test suite and the special-twist tests. Its summary reports 30 tests passed and 0 failures.
+
+![Automated test results](Bhargava_screenshot/04_Automated_Test_Results.png)
+
+### README Project Overview
+
+The Markdown preview shows the README's Project Overview, Problem Statement, Project Objectives, and Technologies Used sections.
+
+![README project overview](Bhargava_screenshot/05_README_Overview.png)
+
+### README API Documentation
+
+The Markdown preview shows the Complete API Endpoint Documentation section, including the base URL, robot endpoint details, query parameters, status codes, example responses, and the beginning of the create-robot documentation.
+
+![README API documentation](Bhargava_screenshot/06_README_API_Documentation.png)
