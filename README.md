@@ -236,7 +236,7 @@ Base URL: `http://localhost:3000`
   * `kind` (string): Case-insensitive filter on robot kind.
   * `name` (string): Case-insensitive substring filter on robot name.
 * **Status Code:** `200 OK`
-* **Example Response:**
+* **Example Response (Default 4 Seeded Robots):**
   ```json
   [
     {
@@ -250,6 +250,18 @@ Base URL: `http://localhost:3000`
       "code": "ROB-0002",
       "name": "Robo Beta",
       "kind": "Wheeled"
+    },
+    {
+      "id": 3,
+      "code": "ROB-0003",
+      "name": "Robo Gamma",
+      "kind": "Industrial"
+    },
+    {
+      "id": 4,
+      "code": "ROB-0004",
+      "name": "Robo Delta",
+      "kind": "Autonomous"
     }
   ]
   ```
@@ -275,19 +287,19 @@ Base URL: `http://localhost:3000`
 * **Example Request Body:**
   ```json
   {
-    "name": "Robo Alpha",
-    "kind": "Humanoid"
+    "name": "Robo Epsilon",
+    "kind": "Combat"
   }
   ```
 * **Status Codes:** `201 Created`, `400 Bad Request`
-* **Behavior:** Server automatically assigns the next sequential code (`ROB-0001`). If client passes a `code` field, it is overridden.
+* **Behavior:** Server automatically assigns the next sequential code (`ROB-0005`). If client passes a `code` field, it is overridden.
 * **Example Response (201 Created):**
   ```json
   {
-    "id": 1,
-    "code": "ROB-0001",
-    "name": "Robo Alpha",
-    "kind": "Humanoid"
+    "id": 5,
+    "code": "ROB-0005",
+    "name": "Robo Epsilon",
+    "kind": "Combat"
   }
   ```
 

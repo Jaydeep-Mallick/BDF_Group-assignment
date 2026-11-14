@@ -98,6 +98,17 @@ describe('RoboRoom Club API Test Suite', () => {
   });
 
   // 2. Robot Operations
+  it('2-init. Initial database has at least 4 default robots', async () => {
+    const res = await apiRequest('/robots');
+    assert.equal(res.status, 200);
+    assert.ok(Array.isArray(res.body));
+    assert.ok(res.body.length >= 4, 'Must contain at least four robots by default');
+    assert.ok(res.body.some((r) => r.code === 'ROB-0001' && r.name === 'Robo Alpha'));
+    assert.ok(res.body.some((r) => r.code === 'ROB-0002' && r.name === 'Robo Beta'));
+    assert.ok(res.body.some((r) => r.code === 'ROB-0003' && r.name === 'Robo Gamma'));
+    assert.ok(res.body.some((r) => r.code === 'ROB-0004' && r.name === 'Robo Delta'));
+  });
+
   let testRobotId;
   it('2a. POST /robots creates a new robot with generated code (201)', async () => {
     const res = await apiRequest('/robots', {
@@ -107,6 +118,7 @@ describe('RoboRoom Club API Test Suite', () => {
     assert.equal(res.status, 201);
     assert.ok(res.body.id);
     assert.ok(res.body.code);
+    assert.equal(res.body.code, 'ROB-0005');
     assert.equal(res.body.name, 'Titan Mech');
     assert.equal(res.body.kind, 'Humanoid');
     testRobotId = res.body.id;

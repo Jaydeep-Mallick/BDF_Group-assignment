@@ -55,7 +55,64 @@ function initDb(customPath) {
   const schemaSql = fs.readFileSync(schemaPath, 'utf8');
   dbInstance.exec(schemaSql);
 
+  // Automatically seed default robot records idempotently
+  seedDefaultRobots(dbInstance);
+
   return dbInstance;
+}
+
+/**
+ * Default robots to be seeded automatically upon database initialization.
+ */
+const defaultRobots = [
+  { code: 'ROB-0001', name: 'Robo Alpha', kind: 'Humanoid' },
+  { code: 'ROB-0002', name: 'Robo Beta', kind: 'Wheeled' },
+  { code: 'ROB-0003', name: 'Robo Gamma', kind: 'Industrial' },
+  { code: 'ROB-0004', name: 'Robo Delta', kind: 'Autonomous' }
+];
+
+/**
+ * Idempotently seeds the database with the default four robots.
+ * - Inserts only missing robots (preserves existing IDs and data).
+ * - Does not create duplicates on server restarts.
+ * - Does not overwrite existing robot information.
+ * - Ensures persistent sequence counter is synchronized to at least 4.
+ * @param {Database.Database} db
+ */
+function seedDefaultRobots(db) {
+  const seedTx = db.transaction(() => {
+    const insertStmt = db.prepare('INSERT INTO robots (code, name, kind) VALUES (?, ?, ?)');
+
+    for (const robot of defaultRobots) {
+      // Check if robot with this code or name already exists
+      const existing = db.prepare('SELECT id, code FROM robots WHERE code = ? OR name = ?').get(robot.code, robot.name);
+      if (!existing) {
+        insertStmt.run(robot.code, robot.name, robot.kind);
+      }
+    }
+
+    // Determine the highest numeric code suffix currently in use
+    const allRobots = db.prepare('SELECT code FROM robots').all();
+    let maxNum = defaultRobots.length;
+    for (const r of allRobots) {
+      const match = r.code && r.code.match(/^ROB-(\d+)$/);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (num > maxNum) {
+          maxNum = num;
+        }
+      }
+    }
+
+    // Ensure the persistent counter is at least the highest code number
+    const counterRow = db.prepare('SELECT last_number FROM robot_code_counter WHERE id = 1').get();
+    const currentCounter = counterRow ? counterRow.last_number : 0;
+    if (currentCounter < maxNum) {
+      db.prepare('UPDATE robot_code_counter SET last_number = ? WHERE id = 1').run(maxNum);
+    }
+  });
+
+  seedTx();
 }
 
 /**
@@ -105,6 +162,8 @@ module.exports = {
   initDb,
   closeDb,
   generateNextRobotCode,
+  seedDefaultRobots,
+  defaultRobots,
   get db() {
     return getDb();
   }
