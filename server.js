@@ -5,7 +5,7 @@
  */
 
 const express = require('express');
-const { initDb } = require('./database/db');
+const { initDb, getCurrentDbPath } = require('./database/db');
 
 const robotRoutes = require('./routes/robots');
 const builderRoutes = require('./routes/builders');
@@ -73,6 +73,7 @@ let server = null;
 if (require.main === module) {
   server = app.listen(PORT, () => {
     console.log(`[RoboRoom Club] Server running on http://localhost:${PORT}`);
+    console.log(`[RoboRoom Club] Connected database: ${getCurrentDbPath()}`);
   });
 }
 

@@ -9,23 +9,41 @@ const path = require('path');
 const fs = require('fs');
 
 const defaultDbPath = path.join(__dirname, '..', 'data', 'roboroom.db');
-let currentDbPath = process.env.DB_PATH || defaultDbPath;
 
+/**
+ * Resolves database file path supporting DB_PATH environment variable,
+ * explicit custom paths, or the default roboroom.db.
+ * @param {string} [targetPath]
+ * @returns {string} Absolute file path or ':memory:'
+ */
+function resolveDbPath(targetPath) {
+  const chosen = targetPath !== undefined ? targetPath : (process.env.DB_PATH || defaultDbPath);
+  if (chosen === ':memory:') {
+    return ':memory:';
+  }
+  return path.resolve(chosen);
+}
+
+let currentDbPath = resolveDbPath();
 let dbInstance = null;
 
 /**
  * Initializes the SQLite database, enables foreign keys and runs schema definitions.
+ * Connects to DB_PATH if provided, or the default database.
  * @param {string} [customPath] - Custom SQLite file path (used for isolated tests)
  * @returns {Database.Database} Active SQLite database instance
  */
 function initDb(customPath) {
-  if (customPath) {
-    currentDbPath = customPath;
-    if (dbInstance && dbInstance.open) {
+  const targetPath = resolveDbPath(customPath);
+
+  if (dbInstance && (customPath || currentDbPath !== targetPath)) {
+    if (dbInstance.open) {
       dbInstance.close();
     }
     dbInstance = null;
   }
+
+  currentDbPath = targetPath;
 
   if (dbInstance && dbInstance.open) {
     return dbInstance;
@@ -60,12 +78,22 @@ function initDb(customPath) {
 
 /**
  * Retrieves current database connection, initializing if needed.
+ * Automatically respects process.env.DB_PATH if set.
  */
 function getDb() {
-  if (!dbInstance || !dbInstance.open) {
-    return initDb();
+  const expectedPath = resolveDbPath();
+  if (!dbInstance || !dbInstance.open || currentDbPath !== expectedPath) {
+    return initDb(expectedPath);
   }
   return dbInstance;
+}
+
+/**
+ * Returns current connected database file path.
+ * @returns {string}
+ */
+function getCurrentDbPath() {
+  return currentDbPath;
 }
 
 /**
@@ -104,6 +132,7 @@ module.exports = {
   getDb,
   initDb,
   closeDb,
+  getCurrentDbPath,
   generateNextRobotCode,
   get db() {
     return getDb();
