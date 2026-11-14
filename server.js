@@ -44,7 +44,7 @@ app.use((req, res) => {
 // Centralized Error Handler
 app.use((err, req, res, next) => {
   // SQLite Constraint Violations
-  if (err.code === 'SQLITE_CONSTRAINT') {
+  if (err.code === 'SQLITE_CONSTRAINT' || (typeof err.code === 'string' && err.code.startsWith('SQLITE_CONSTRAINT'))) {
     if (err.message && err.message.includes('Robot is currently on loan')) {
       return res.status(409).json({ error: 'Robot is currently on loan' });
     }
@@ -58,7 +58,7 @@ app.use((err, req, res, next) => {
   }
 
   // Malformed JSON payload
-  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+  if ((err instanceof SyntaxError && err.status === 400 && 'body' in err) || (err.type === 'entity.parse.failed')) {
     return res.status(400).json({ error: 'Malformed JSON payload' });
   }
 
