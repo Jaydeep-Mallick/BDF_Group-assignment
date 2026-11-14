@@ -6,10 +6,12 @@ node_modules/
 *.db-journal
 *.db-wal
 *.db-shm
+*.backup
 data/*.db
 data/*.db-journal
 data/*.db-wal
 data/*.db-shm
+data/*.backup
 
 # Environment Variables
 .env
